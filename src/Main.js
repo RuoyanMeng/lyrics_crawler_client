@@ -27,6 +27,7 @@ class Main extends Component {
         let player = null
 
         let token = this.state.currentUrl.split('&')[0].split('=')[1]
+        console.log(token)
 
         if (token) {
             if (!window.Spotify) {
@@ -112,6 +113,22 @@ class Main extends Component {
           });
     }
 
+    handleLyrics=()=>{
+        console.log('?????')
+        api.getLyrics("peace of mind","Avicii")
+        .then(resp=>{
+            console.log(resp.data)
+            this.setState({
+                lyrics_current : resp.data
+            })
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    }
+
+
+
     render() {
 
         let player = null
@@ -125,10 +142,10 @@ class Main extends Component {
 
         let main = null
         if (this.state.access_token && this.state.player) {
-            main = <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} href={_url}>Hello Spotify</a>
+            main = <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} onClick={this.handleLyrics}>Hello Spotify</a>
         }
         else {
-            main = <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} href={_url}>Login to Spotify</a>
+            main = <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} href={'http://localhost:5000/login'}>Login to Spotify</a>
         }
 
         let previousBtn =
@@ -190,10 +207,26 @@ class Main extends Component {
         
             </div>
 
+        let t = 
+            <div class="flex items-center">
+                
+                <div class="outline w-50 pa3 mr2">
+                    <hr className='br2' style={{color:'white',backgroundColor:'white',height: '5px',width: '100%'}}></hr>
+                    {p}
+                </div>
+                <div class="outline w-50 pa3 h5">
+                    {main}
+                </div>
+            </div>
+        
+
+
         return (
             <div className='main'>
-                {main}
-                {p}
+                {t}
+                
+                
+                
             </div>
         )
     }
