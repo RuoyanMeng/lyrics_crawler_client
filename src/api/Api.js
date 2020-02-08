@@ -4,10 +4,18 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:5000'
 
 class Api {
-  static auth_spotify = () => {
-    let _url = BASE_URL + '/login'
+  static current_play = (token) => {
+    let _url = 'https://api.spotify.com/v1/me/player/currently-playing'
 
-    return axios.get(_url)
+    return axios({
+      url:_url,
+      method: 'GET',
+      headers: {
+          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+      },
+    })
       .then(response => {
         return response;
       })
