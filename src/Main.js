@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 
 import api from './api/Api'
@@ -8,7 +8,6 @@ import Player from './Player.js'
 
 const BASE_URL = 'https://accounts.spotify.com'
 const scope = ['user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-state', "streaming", "user-read-email", "user-read-private"]
-
 
 
 class Main extends Component {
@@ -42,6 +41,7 @@ class Main extends Component {
                     this.setState({
                         currentPlaying: song_info
                     })
+                    console.log(this.state.currentPlaying)
                 })
                 .catch(err => {
                     console.log(err)
@@ -74,25 +74,41 @@ class Main extends Component {
                         player.addListener('playback_error', ({ message }) => { console.error(message); });
 
                         // Playback status updates
-                        player.addListener('player_state_changed', state => { console.log(state); });
+                        player.addListener('player_state_changed', state => {
+                            console.log(state);
+                            if (state) {
+                                let song_info = {
+                                    name: state.track_window.current_track.name,
+                                    album_image: state.track_window.current_track.album.images[0],
+                                    artists: state.track_window.current_track.artists
+                                }
+                                this.setState({
+                                    player: player,
+                                    currentPlaying: song_info
+                                });
+                            } else {
+                                this.setState({
+                                    player: null
+                                });
+                            }
+
+                        });
 
                         // Ready
                         player.addListener('ready', ({ device_id }) => {
 
-                            console.log('Ready with Device ID', device_id);
+                            console.log('Ready with Device ID');
                         });
 
                         // Not Ready
                         player.addListener('not_ready', ({ device_id }) => {
-                            console.log('Device ID has gone offline', device_id);
+                            console.log('Device ID has gone offline');
                         });
 
                         // Connect to the player!
                         player.connect();
 
-                        this.setState({
-                            player: player
-                        });
+
 
 
                     }
@@ -132,9 +148,11 @@ class Main extends Component {
         });
     }
 
-    handleLyrics = () => {
-        console.log('?????')
-        api.getLyrics("peace of mind", "Avicii")
+    handleLyrics = (song_info) => {
+        let name = song_info.name
+        let artist = song_info.artists[0].name
+
+        api.getLyrics(name, artist)
             .then(resp => {
                 console.log(resp.data)
                 this.setState({
@@ -217,7 +235,7 @@ class Main extends Component {
 
 
         let main = null
-        if (this.state.player && this.state.currentPlaying) {
+        if (this.state.currentPlaying) {
 
             let artists = []
             let lyrics = null
@@ -227,37 +245,78 @@ class Main extends Component {
             }
 
             //lyrics layout need to be improve
-            if (this.state.lyrics_current){
-                lyrics = 
-                <div>
-                    {this.state.lyrics_current}
-                </div>
+            if (this.state.lyrics_current) {
+                lyrics =
+                    <div className='white'>
+                        {this.state.lyrics_current.split("\n").map(function(item) {
+                            return (
+                            <span>
+                            {item}
+                            <br />
+                            </span>
+                        )
+                    })}
+                    </div>
             }
-            else{
-                lyrics = 
-                <div>
-                    Loading....
+            else {
+                lyrics =
+                    <div>
+                        Loading....
                 </div>
             }
 
-            main =
-                <div>
-                    <div className=" pa3 mr2">
-                        <div>
-                            <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
-                            <h1 className='avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
-                            <h1 className='avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
+            if (this.state.player) {
+                main =
+                    <div>
+                        <div className=" pa3 mr2 ">
+                            <div className="pt6">
+                                <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
+                                <h1 className='avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
+                                <h1 className='avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
+                            </div>
+                            <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
+                            {p}
                         </div>
-                        <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
-                        {p}
+                        <div className="pa2 h5">
+                            <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} onClick={() => {this.handleLyrics(this.state.currentPlaying)}}>Lyrics</a>
+                            {lyrics}
+                        </div>
                     </div>
-                    <div className="pa2 h5">
-                        <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} onClick={this.handleLyrics}>Lyrics</a>
+
+            }
+            else {
+                main =
+                    <div>
+                        <div className=" pa3 mr2">
+                            <div>
+                                <h1 className='avenir f4 center fw5 mt3 white pb2 pt6'>To enable the web player</h1>
+                                <h1 className='avenir f5 center fw5 mt3 white'>1. Open Spotify and play something.</h1>
+                                <h1 className='avenir f5 center fw5 mt3 white'>2. Click Connect to a device in the bottom-right.</h1>
+                                <h1 className='avenir f5 center fw5 mt3 white pb4'>3. Select the device "hello".</h1>
+
+                                <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
+                                <h1 className='avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
+                                <h1 className='avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
+                            </div>
+                            <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
+                            <div className="pa2 h5">
+                                <a className='f6 link dim br2 ph3 pv2 mb2 dib white pb3' style={{ backgroundColor: "#1db954" }} onClick={() => {this.handleLyrics(this.state.currentPlaying)}}>Lyrics</a>
+                                {lyrics}
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+            }
+
+
         }
         else {
-            main = <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954", width: '200px' }} href={'http://localhost:5000/login'}>Login to Spotify</a>
+            main =
+                <div>
+                    <h1 className='avenir f3 center fw5 mt3 white pt7'>Hey, before you start,</h1>
+                    <h1 className='avenir f3 center fw5 mt3 white pb4 pt2'>make sure you're playing music on Spotify</h1>
+                    <a className='f6 link dim br2 pv2 dib white' style={{ backgroundColor: "#1db954", width: '200px' }} href={'http://localhost:5000/login'}>Login to Spotify</a>
+                </div>
         }
 
 
