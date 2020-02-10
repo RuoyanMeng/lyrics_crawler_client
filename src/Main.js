@@ -7,7 +7,6 @@ import client_id from './APIKEY.js';
 import Player from './Player.js'
 
 const BASE_URL = 'https://accounts.spotify.com'
-const scope = ['user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-state', "streaming", "user-read-email", "user-read-private"]
 
 
 class Main extends Component {
@@ -170,12 +169,6 @@ class Main extends Component {
 
         let player = null
         let togglePlayBtn = null;
-        let redirect_uri = this.state.currentUrl;
-
-        let _url = BASE_URL + '/authorize' +
-            '?response_type=token' +
-            '&client_id=' + client_id +
-            '&redirect_uri=' + encodeURIComponent(redirect_uri) + '&scope=' + scope.join('%20');
 
         let previousBtn =
             <div className=" w-25 pa5 " onClick={this.previousTrack}>
@@ -311,11 +304,12 @@ class Main extends Component {
 
         }
         else {
+            let uri = window.location.includes('localhost') ? 'http://localhost:5000/login':'https://lyrics-crawler-server.herokuapp.com/login'
             main =
                 <div>
                     <h1 className='avenir f3 center fw5 mt3 white pt7'>Hey, before you start,</h1>
                     <h1 className='avenir f3 center fw5 mt3 white pb4 pt2'>make sure you're playing music on Spotify</h1>
-                    <a className='f6 link dim br2 pv2 dib white' style={{ backgroundColor: "#1db954", width: '200px' }} href={'http://localhost:5000/login'}>Login to Spotify</a>
+                    <a className='f6 link dim br2 pv2 dib white' style={{ backgroundColor: "#1db954", width: '200px' }} href={uri}>Login to Spotify</a>
                 </div>
         }
 
