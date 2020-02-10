@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 
 import api from './api/Api'
 import '../src/styles/main.css'
-import client_id from './APIKEY.js';
 import Player from './Player.js'
 
 const BASE_URL = 'https://accounts.spotify.com'
