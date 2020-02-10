@@ -304,7 +304,8 @@ class Main extends Component {
 
         }
         else {
-            let uri = window.location.includes('localhost') ? 'http://localhost:5000/login':'https://lyrics-crawler-server.herokuapp.com/login'
+            
+            let uri = this.state.currentUrl.includes('localhost') ? 'http://localhost:5000/login':'https://lyrics-crawler-server.herokuapp.com/login'
             main =
                 <div>
                     <h1 className='avenir f3 center fw5 mt3 white pt7'>Hey, before you start,</h1>
