@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import api from './api/Api'
 import '../src/styles/main.css'
 import Player from './Player.js'
+import loaderIcon from './styles/loader.svg'
 
 
 class Main extends Component {
@@ -23,7 +24,6 @@ class Main extends Component {
         let player = null
 
         let token = this.state.currentUrl.split('&')[0].split('=')[1]
-        console.log(token)
 
         if (token) {
             api.current_play(token)
@@ -37,7 +37,8 @@ class Main extends Component {
                     this.setState({
                         currentPlaying: song_info
                     })
-                    console.log(this.state.currentPlaying)
+                    this.handleLyrics(song_info)
+
                 })
                 .catch(err => {
                     console.log(err)
@@ -79,9 +80,11 @@ class Main extends Component {
                                     artists: state.track_window.current_track.artists
                                 }
                                 this.setState({
+                                    lyrics_current:null,
                                     player: player,
                                     currentPlaying: song_info
                                 });
+                                this.handleLyrics(song_info)
                             } else {
                                 this.setState({
                                     player: null
@@ -129,7 +132,6 @@ class Main extends Component {
 
         api.getLyrics(name, artist)
             .then(resp => {
-                console.log(resp.data)
                 this.setState({
                     lyrics_current: resp.data
                 })
@@ -144,6 +146,8 @@ class Main extends Component {
     render() {
 
         let main = null
+        let loader =  <img className='w3' src={loaderIcon}></img>
+
         if (this.state.currentPlaying) {
 
             let artists = []
@@ -157,7 +161,7 @@ class Main extends Component {
             if (this.state.lyrics_current) {
 
                 lyrics =
-                    <div className='white'>
+                    <div className='white pv3'>
                         {this.state.lyrics_current.split("\n").map(function (item) {
                             return (
                                 <span>
@@ -170,9 +174,9 @@ class Main extends Component {
             }
             else {
                 lyrics =
-                    <div>
-                        Loading....
-                </div>
+                    <div className='pv3'>
+                        {loader}
+                    </div>
             }
 
             if (this.state.player) {
@@ -188,7 +192,6 @@ class Main extends Component {
                             <Player player={this.state.player}></Player>
                         </div>
                         <div className="pa2 h5">
-                            <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} onClick={() => { this.handleLyrics(this.state.currentPlaying) }}>Lyrics</a>
                             {lyrics}
                         </div>
                     </div>
@@ -210,7 +213,7 @@ class Main extends Component {
                             </div>
                             <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
                             <div className="pa2 h5">
-                                <a className='f6 link dim br2 ph3 pv2 mb2 dib white pb3' style={{ backgroundColor: "#1db954" }} onClick={() => { this.handleLyrics(this.state.currentPlaying) }}>Lyrics</a>
+                                {/* <a className='f6 link dim br2 ph3 pv2 mb2 dib white pb3' style={{ backgroundColor: "#1db954" }} onClick={() => { this.handleLyrics(this.state.currentPlaying) }}>Lyrics</a> */}
                                 {lyrics}
                             </div>
                         </div>
@@ -243,10 +246,10 @@ class Main extends Component {
                 </g>
             </svg>
 
+
         return (
             <div className='main'>
                 {main}
-
             </div>
         )
     }
