@@ -123,27 +123,8 @@ class Main extends Component {
 
     }
 
-    togglePlay = () => {
-        console.log('clicked')
-        this.state.player.togglePlay().then(() => {
-            console.log('Toggled playback!');
-        });
-    }
-
-    previousTrack = () => {
-        this.state.player.previousTrack().then(() => {
-            console.log('Set to previous track!');
-        });
-    }
-
-    nextTrack = () => {
-        this.state.player.nextTrack().then(() => {
-            console.log('Skipped to next track!');
-        });
-    }
-
     handleLyrics = (song_info) => {
-        let name = song_info.name
+        let name = song_info.name.split(' (')[0]
         let artist = song_info.artists[0].name
 
         api.getLyrics(name, artist)
@@ -174,6 +155,7 @@ class Main extends Component {
 
             //lyrics layout need to be improve
             if (this.state.lyrics_current) {
+
                 lyrics =
                     <div className='white'>
                         {this.state.lyrics_current.split("\n").map(function (item) {
@@ -203,7 +185,7 @@ class Main extends Component {
                                 <h1 className='avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
                             </div>
                             <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
-                            <Player player = {this.state.player}></Player>
+                            <Player player={this.state.player}></Player>
                         </div>
                         <div className="pa2 h5">
                             <a className='f6 link dim br2 ph3 pv2 mb2 dib white' style={{ backgroundColor: "#1db954" }} onClick={() => { this.handleLyrics(this.state.currentPlaying) }}>Lyrics</a>
@@ -250,16 +232,16 @@ class Main extends Component {
 
 
         let pauseBtn =
-        <svg className='icon w2'
-            xmlns="http://www.w3.org/2000/svg"
-            xmlnsXlink="http://www.w3.org/1999/xlink"
-            xmlSpace="preserve"
-            viewBox="0 0 150 150"
-            preserveAspectRatio="xMidYMin meet">
-            <g id="surface1">
-                <path d="M 75 0 C 33.644531 0 0 33.644531 0 75 C 0 116.355469 33.644531 150 75 150 C 116.355469 150 150 116.355469 150 75 C 150 33.644531 116.355469 0 75 0 Z M 112.25 80.78125 L 63.160156 111.464844 C 62.054688 112.152344 60.800781 112.5 59.546875 112.5 C 58.410156 112.5 57.269531 112.214844 56.238281 111.644531 C 54.074219 110.441406 52.726562 108.160156 52.726562 105.683594 L 52.726562 44.316406 C 52.726562 41.839844 54.074219 39.554688 56.238281 38.355469 C 58.410156 37.152344 61.058594 37.222656 63.160156 38.535156 L 112.25 69.21875 C 114.242188 70.464844 115.453125 72.648438 115.453125 75 C 115.453125 77.351562 114.242188 79.535156 112.25 80.78125 Z M 112.25 80.78125 " />
-            </g>
-        </svg>
+            <svg className='icon w2'
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                xmlSpace="preserve"
+                viewBox="0 0 150 150"
+                preserveAspectRatio="xMidYMin meet">
+                <g id="surface1">
+                    <path d="M 75 0 C 33.644531 0 0 33.644531 0 75 C 0 116.355469 33.644531 150 75 150 C 116.355469 150 150 116.355469 150 75 C 150 33.644531 116.355469 0 75 0 Z M 112.25 80.78125 L 63.160156 111.464844 C 62.054688 112.152344 60.800781 112.5 59.546875 112.5 C 58.410156 112.5 57.269531 112.214844 56.238281 111.644531 C 54.074219 110.441406 52.726562 108.160156 52.726562 105.683594 L 52.726562 44.316406 C 52.726562 41.839844 54.074219 39.554688 56.238281 38.355469 C 58.410156 37.152344 61.058594 37.222656 63.160156 38.535156 L 112.25 69.21875 C 114.242188 70.464844 115.453125 72.648438 115.453125 75 C 115.453125 77.351562 114.242188 79.535156 112.25 80.78125 Z M 112.25 80.78125 " />
+                </g>
+            </svg>
 
         return (
             <div className='main'>

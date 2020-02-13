@@ -23,8 +23,10 @@ class Api {
   }
 
   static getLyrics = (_song, _artist) => {
-    let _url = 'http://localhost:5000/fetch_lyrics'
-    console.log(_song + "   " + _artist)
+    let u = window.location.href
+    console.log(typeof u)
+    let _url =u.includes('localhost') ? 'http://localhost:5000/fetch_lyrics' : 'https://lyrics-crawler-server.herokuapp.com/fetch_lyrics'
+    console.log(_song, _artist)
 
     return axios.get(_url, {
       params: {
