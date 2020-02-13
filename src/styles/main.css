@@ -7,10 +7,7 @@
     flex-direction: column;
     align-items: center;
     /* justify-content: center; */
-
-
-
-    
+ 
 }
 
 .icon:hover {
@@ -21,4 +18,8 @@
     fill: #ffffff
     /* fill: #000000; */
     
+}
+
+.controlBtn{
+    width: 1.5rem;
 }
