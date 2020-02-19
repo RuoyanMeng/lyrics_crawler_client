@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import '../src/styles/main.css'
+import '../Styles/main.css'
 
 
 class Player extends Component {
