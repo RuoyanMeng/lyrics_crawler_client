@@ -22,7 +22,7 @@ class Toast extends React.Component {
     }
 
     getIcon() {
-        switch (this.props.level) {
+        switch (this.props.toastOption) {
             case 'warning': return warningIcon
             case 'success': return tickIcon
         }
@@ -31,6 +31,7 @@ class Toast extends React.Component {
     render() {
         let classes = `toast ${this.props.toastOption} `
         classes += this.state.visible ? 'visible' : ''
+        console.log(classes)
         return (
             <div className={classes}>
                 <figure>

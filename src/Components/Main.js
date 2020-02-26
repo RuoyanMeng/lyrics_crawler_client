@@ -19,7 +19,7 @@ class Main extends Component {
             access_token: null,
             player: null,
             currentPlaying: null,
-            showToast: true,
+            showToast: false,
             toastMessage:null,
             toastOption:null
         };
@@ -149,6 +149,7 @@ class Main extends Component {
     }
 
     sendFeedback = () => {
+        
         let song_info = {
             name: this.state.currentPlaying.name,
             album_name: this.state.currentPlaying.album_name,
@@ -156,6 +157,7 @@ class Main extends Component {
         }
         api.sendFeedback(this.state.currentPlaying)
             .then(() => {
+                console.log('ok')
                 this.setState({
                     showToast: true,
                     toastOption:"success",
@@ -189,6 +191,8 @@ class Main extends Component {
         let main = null
         let loader = <img className='w3' src={loaderIcon}></img>
 
+        let tooltipPosition = /Android|webOS|iPhone|iPad/i.test(navigator.userAgent) ? 'top':'bottom'
+        
         if (this.state.currentPlaying) {
 
             let artists = this.state.currentPlaying.artists
@@ -197,12 +201,12 @@ class Main extends Component {
             //lyrics layout need to be improve
             if (this.state.lyrics_current) {
                 if (this.state.lyrics_current === 'Oops! No results found') {
-                    let question = <Tooltip message={'Click here to report lyrics missing '} position={'bottom'}><img className='w2' src={questionIcon} onClick={this.sendFeedback}></img></Tooltip>
+                    let question = <Tooltip message={'Click here to report lyrics missing '} position={tooltipPosition}><img className='w2 icon' src={questionIcon} onClick={this.sendFeedback}></img></Tooltip>
                     lyrics =
                         <div className='pv3'>
                             <h4 className='avenir f5 center fw5 mt3 white'>Oops! No results found</h4>
                             {question}
-                            <Toast level={this.state.toastOption} message={this.state.toastMessage} visible={this.state.showToast}/>
+                            <Toast toastOption={this.state.toastOption} message={this.state.toastMessage} visible={this.state.showToast}/>
                         </div>
                 } else {
                     lyrics =
