@@ -8,6 +8,7 @@ import Tooltip from './Presentational/Tooltip'
 import Toast from './Presentational/Toast'
 import loaderIcon from '../Styles/loader.svg'
 import questionIcon from '../Styles/question.svg'
+import logoSpotify from '../Styles/icon_Spotify.png'
 
 
 class Main extends Component {
@@ -34,16 +35,30 @@ class Main extends Component {
         if (token) {
             api.current_play(token)
                 .then(resp => {
+                    let song_info = null;
                     let artists = [];
                     for (let i = 0; i < resp.data.item.artists.length; i++) {
                         artists[i] = resp.data.item.artists[i].name
                     }
-                    let song_info = {
-                        name: resp.data.item.name,
-                        album_name: resp.data.item.album.name,
-                        album_image: resp.data.item.album.images[1],
-                        artists: artists
+                    if(resp.data.item.uri.includes('local')){
+                        let album = {
+                            url:logoSpotify
+                        }
+                        song_info = {
+                            name: resp.data.item.name,
+                            album_name: null,
+                            album_image: album,
+                            artists: artists
+                        }
+                    }else{
+                        song_info = {
+                            name: resp.data.item.name,
+                            album_name: resp.data.item.album.name,
+                            album_image: resp.data.item.album.images[1],
+                            artists: artists
+                        }
                     }
+
                     this.setState({
                         currentPlaying: song_info
                     })
@@ -136,7 +151,7 @@ class Main extends Component {
     handleLyrics = (song_info) => {
         let name = song_info.name.split(' (')[0]
         let artist = song_info.artists[0]
-
+        console.log('fetch')
         api.getLyrics(name, artist)
             .then(resp => {
                 this.setState({
@@ -192,7 +207,7 @@ class Main extends Component {
         let loader = <img className='w3' src={loaderIcon}></img>
 
         let tooltipPosition = /Android|webOS|iPhone|iPad/i.test(navigator.userAgent) ? 'top':'bottom'
-        
+
         if (this.state.currentPlaying) {
 
             let artists = this.state.currentPlaying.artists
