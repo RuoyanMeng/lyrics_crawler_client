@@ -1,14 +1,17 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 import api from '../Api/Api'
-import '../Styles/main.css'
+import '../Styles/main.scss'
 import Player from './Presentational/Player'
 import Tooltip from './Presentational/Tooltip'
 import Toast from './Presentational/Toast'
+import Modal from './Presentational/Modal'
+import Selector from './Presentational/Selector'
 import loaderIcon from '../Styles/loader.svg'
 import questionIcon from '../Styles/question.svg'
 import logoSpotify from '../Styles/icon_Spotify.png'
+import shareIcon from '../Styles/share.svg'
 
 
 class Main extends Component {
@@ -21,8 +24,10 @@ class Main extends Component {
             player: null,
             currentPlaying: null,
             showToast: false,
-            toastMessage:null,
-            toastOption:null
+            toastMessage: null,
+            toastOption: null,
+            isModalOpen: false,
+            lyricsPicContent: []
         };
     }
 
@@ -35,27 +40,30 @@ class Main extends Component {
         if (token) {
             api.current_play(token)
                 .then(resp => {
+                    console.log(resp.data.item)
                     let song_info = null;
                     let artists = [];
                     for (let i = 0; i < resp.data.item.artists.length; i++) {
                         artists[i] = resp.data.item.artists[i].name
                     }
-                    if(resp.data.item.uri.includes('local')){
+                    if (resp.data.item.uri.includes('local')) {
                         let album = {
-                            url:logoSpotify
+                            url: logoSpotify
                         }
                         song_info = {
                             name: resp.data.item.name,
                             album_name: null,
                             album_image: album,
-                            artists: artists
+                            artists: artists,
+                            spotifyUrl: null
                         }
-                    }else{
+                    } else {
                         song_info = {
                             name: resp.data.item.name,
                             album_name: resp.data.item.album.name,
                             album_image: resp.data.item.album.images[1],
-                            artists: artists
+                            artists: artists,
+                            spotifyUrl: resp.data.item.external_urls.spotify
                         }
                     }
 
@@ -142,16 +150,24 @@ class Main extends Component {
             }
         }
 
+        window.addEventListener('scroll', this.handleScroll);
 
 
+        console.log(this.state.lyricsPicContent)
 
     }
 
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleScroll.bind(this));
+    }
+
+    handleScroll = () => {
+        console.log('scroll');
+    }
 
     handleLyrics = (song_info) => {
         let name = song_info.name.split(' (')[0]
         let artist = song_info.artists[0]
-        console.log('fetch')
         api.getLyrics(name, artist)
             .then(resp => {
                 this.setState({
@@ -164,7 +180,7 @@ class Main extends Component {
     }
 
     sendFeedback = () => {
-        
+
         let song_info = {
             name: this.state.currentPlaying.name,
             album_name: this.state.currentPlaying.album_name,
@@ -172,11 +188,10 @@ class Main extends Component {
         }
         api.sendFeedback(this.state.currentPlaying)
             .then(() => {
-                console.log('ok')
                 this.setState({
                     showToast: true,
-                    toastOption:"success",
-                    toastMessage:"Feedback sent!"
+                    toastOption: "success",
+                    toastMessage: "Feedback sent!"
                 }, () => {
                     setTimeout(() =>
                         this.setState({ showToast: false })
@@ -187,8 +202,8 @@ class Main extends Component {
                 console.log(err)
                 this.setState({
                     showToast: true,
-                    toastOption:"warning",
-                    toastMessage:"Oops!"+err
+                    toastOption: "warning",
+                    toastMessage: "Oops!" + err
                 }, () => {
                     setTimeout(() =>
                         this.setState({ showToast: false })
@@ -198,42 +213,99 @@ class Main extends Component {
     }
 
 
+    openModal = () => {
+        this.setState({
+            isModalOpen: true
+        });
+
+    }
+
+    closeModal = () => {
+        this.setState({
+            isModalOpen: false
+        });
+    }
+
+
+    choosenLyrics = (lyrics, active) => {
+        //push() have return value, so don't use it in setState
+        let n1 = this.state.lyricsPicContent
+        if (active) {
+            n1.push(lyrics)
+            this.setState({
+                lyricsPicContent: n1
+            })
+        } else {
+            n1 = n1.filter((lyric) => lyric !== lyrics)
+            this.setState({
+                lyricsPicContent: n1
+            })
+        }
+    }
 
 
 
     render() {
-
         let main = null
         let loader = <img className='w3' src={loaderIcon}></img>
 
-        let tooltipPosition = /Android|webOS|iPhone|iPad/i.test(navigator.userAgent) ? 'top':'bottom'
+        let tooltipPosition = /Android|webOS|iPhone|iPad/i.test(navigator.userAgent) ? 'top' : 'bottom';
+
+        let modalContent = null;
 
         if (this.state.currentPlaying) {
 
             let artists = this.state.currentPlaying.artists
             let lyrics = null
 
-            //lyrics layout need to be improve
             if (this.state.lyrics_current) {
                 if (this.state.lyrics_current === 'Oops! No results found') {
                     let question = <Tooltip message={'Click here to report lyrics missing '} position={tooltipPosition}><img className='w2 icon' src={questionIcon} onClick={this.sendFeedback}></img></Tooltip>
                     lyrics =
                         <div className='pv3'>
-                            <h4 className='avenir f5 center fw5 mt3 white'>Oops! No results found</h4>
+                            <h4 className=' f5 center fw5 mt3 white'>Oops! No results found</h4>
                             {question}
-                            <Toast toastOption={this.state.toastOption} message={this.state.toastMessage} visible={this.state.showToast}/>
+                            <Toast toastOption={this.state.toastOption} message={this.state.toastMessage} visible={this.state.showToast} />
+                        </div>
+
+                    modalContent =
+                        <div>
+                            <p>Under Construnction, :)</p>
                         </div>
                 } else {
+                    let lyricsPicData = {
+                        image: this.state.currentPlaying.album_image.url,
+                        name:this.state.currentPlaying.name,
+                        artists: artists.join(', '),
+                        choosenLyr: this.state.lyricsPicContent,
+                        spotifyUrl: this.state.currentPlaying.spotifyUrl
+                    }
                     lyrics =
                         <div className='white pv3'>
-                            {this.state.lyrics_current.split("\n").map(function (item) {
+                            {this.state.lyrics_current.split("\n").map((item, index) => {
                                 return (
-                                    <span>
+                                    <span key={index}>
                                         {item}
                                         <br />
                                     </span>
                                 )
                             })}
+                        </div>
+
+                    modalContent =
+                        <div>
+                            <div>
+                                {this.state.lyrics_current.split("\n").map((item, index) => {
+
+                                    return (
+                                        //have parenthesis to avoid undefined error
+                                        //must set key or id to aviod undefined error
+                                        <Selector key={index} lyrics={item} choosenLyrics={this.choosenLyrics} />
+                                        )
+                                })}
+                            </div>
+                            <Link to={{ pathname: '/lyrics-pic', data: lyricsPicData }}><a className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3" >Generate Lyrics Pic</a></Link>
+
                         </div>
                 }
             }
@@ -246,40 +318,44 @@ class Main extends Component {
 
             if (this.state.player) {
                 main =
-                    <div>
+                    <div className='main'>
                         <div className=" pa3  ">
                             <div className="pt6">
                                 <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
-                                <h1 className='avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
-                                <h1 className='avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
+                                <h1 className=' f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
+                                <h1 className=' f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
                             </div>
                             <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
                             <Player player={this.state.player}></Player>
                         </div>
-                        <div className=" h4">
+                        <div className="h4">
                             {lyrics}
                         </div>
+                        <label className='share-menu' onClick={this.openModal}><img className='icon' src={shareIcon} /></label>
+
                     </div>
 
             }
             else {
                 main =
-                    <div>
+                    <div className='main'>
                         <div className=" pa3 mr2">
                             <div>
-                                <h1 className='avenir f4 center fw5 mt3 white pb2 pt6'>To enable the web player</h1>
-                                <h1 className='avenir f5 center fw5 mt3 white'>1. Open Spotify and play something.</h1>
-                                <h1 className='avenir f5 center fw5 mt3 white'>2. Click Connect to a device in the bottom-right.</h1>
-                                <h1 className='avenir f5 center fw5 mt3 white pb4'>3. Select the device "hello".</h1>
+                                <h1 className=' f4 center fw5 mt3 white pb2 pt6'>To enable the web player</h1>
+                                <h1 className=' f5 center fw5 mt3 white'>1. Open Spotify and play something.</h1>
+                                <h1 className=' f5 center fw5 mt3 white'>2. Click Connect to a device in the bottom-right.</h1>
+                                <h1 className=' f5 center fw5 mt3 white pb4'>3. Select the device "hello".</h1>
 
                                 <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
-                                <h1 className='avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
-                                <h1 className='avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
+                                <h1 className=' avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
+                                <h1 className=' avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
                             </div>
                             <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
                             <div className="pa1 h4">
                                 {lyrics}
                             </div>
+                            <label className='share-menu' onClick={this.openModal}><img className='icon' src={shareIcon} /></label>
+
                         </div>
                     </div>
             }
@@ -287,17 +363,23 @@ class Main extends Component {
         else {
             let uri = this.state.currentUrl.includes('localhost') ? 'http://localhost:5000/login' : 'https://lyrics-crawler-server.herokuapp.com/login'
             main =
-                <div>
-                    <h1 className='avenir f3 center fw5 mt3 white pt7'>Hey, before you start,</h1>
-                    <h1 className='avenir f3 center fw5 mt3 white pb4 pt2'>make sure you're playing music on Spotify</h1>
+                <div className='main'>
+                    <h1 className=' f3 center fw5 mt3 white pt7'>Hey, before you start,</h1>
+                    <h1 className=' f3 center fw5 mt3 white pb4 pt2'>make sure you're playing music on Spotify</h1>
                     <a className='f6 link dim br2 pv2 dib white' style={{ backgroundColor: "#1db954", width: '200px' }} href={uri}>Login to Spotify</a>
                 </div>
         }
 
 
         return (
-            <div className='main'>
+            <div >
                 {main}
+                <Modal
+                    isModalOpen={this.state.isModalOpen}
+                    closeModal={this.closeModal}
+                >
+                    {modalContent}
+                </Modal>
             </div>
         )
     }

@@ -1,0 +1,60 @@
+$padding: 16px;
+$trigger-size: 56px;
+$action-size: 40px;
+$max-child-actions: 4;
+$transition-duration: .4s;
+
+.main{
+    background-color: #000000;
+    /* background-color: #ffffff; */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    font-family: 'Roboto Mono', monospace;
+
+    .icon{
+        fill: #ffffff;
+        /* fill: #000000; */
+        &:hover {
+            fill: #b3b3b3;
+          }
+    }
+
+
+    .controlBtn{
+        width: 1.5rem;
+    }
+ 
+    .share-menu {
+        position: fixed;
+        padding: "20px";
+        width: 40px;
+        height: 40px;
+        right: 40px;
+        bottom: 39px;
+        color: white;
+        border-radius: 50%;
+        background-color: #1db954;
+        box-shadow: 0 0 20px grey;
+        float: right;
+    
+        .icon{
+            padding-top: 10px;
+        }
+
+        &:hover{
+            box-shadow: 0 0 30px rgb(241, 235, 235);
+
+        }
+    
+    }
+
+}
+
+
+
+
+
+

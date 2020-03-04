@@ -8,9 +8,10 @@ body {
   height:100%;
   width:100%;
   background-color: #000000;
+  font-family: 'Roboto Mono', monospace;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    monospace, 'Roboto Mono', monospace;
 }

@@ -1,0 +1,19 @@
+p{
+    padding: 8px 15px;
+    background-color: #212121;
+    position: relative;
+    cursor: pointer;
+    transition: 0.3s;
+    margin:0;
+
+    &:hover{
+        background-color: #535353;
+    }
+
+    &.active{
+        color:#fff;
+        background-color:#444343;
+    }
+
+
+}
