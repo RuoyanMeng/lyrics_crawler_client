@@ -19,20 +19,25 @@ class LyricsPic extends Component {
         });
     }
 
+    download_img = (el) => {
+        var canvas = document.getElementById('canvas');
+        var image = canvas.toDataURL("image/jpg");
+        el.target.href = image;
+    };
 
     render() {
-        const data = this.props.location.data
+        //const data = this.props.location.data
         const { dimensions } = this.state;
         let svg = null
         let picCanvs = null;
 
-        // let data = {
-        //     image: 'https://i.scdn.co/image/ab67616d00001e02cb4ec52c48a6b071ed2ab6bc',
-        //     name: "Gangsta",
-        //     artists: "Kehlani",
-        //     choosenLyr: ["I need a gangsta", "To love me better", "Than all the others do", "To always forgive me", "Ride or die with me", "That's just what gangsters do"],
-        //     spotifyUrl: "https://open.spotify.com/track/1W7zkKgRv9mrLbfdQ8XyH3"
-        // };
+        let data = {
+            image: 'https://i.scdn.co/image/ab67616d00001e02cb4ec52c48a6b071ed2ab6bc',
+            name: "Gangsta",
+            artists: "Kehlani",
+            choosenLyr: ["I need a gangsta", "To love me better", "Than all the others do", "To always forgive me", "Ride or die with me", "That's just what gangsters do"],
+            spotifyUrl: "https://open.spotify.com/track/1W7zkKgRv9mrLbfdQ8XyH3"
+        };
 
         console.log(dimensions);
 
@@ -57,6 +62,8 @@ class LyricsPic extends Component {
 
         if (dimensions) {
 
+            console.log("ok")
+
             this.canvas.width = dimensions.width;
             this.canvas.height = dimensions.height;
             this.canvas.style.width = dimensions.width + "px";
@@ -73,36 +80,39 @@ class LyricsPic extends Component {
                 return (window.devicePixelRatio || 1) / backingStore;
             };
             var ratio = getPixelRatio(ctx);
-            console.log(ratio)
             this.canvas.width = dimensions.width * ratio;
             this.canvas.height = dimensions.height * ratio;
 
             var ctx = this.canvas.getContext('2d')
             ctx.scale(ratio, ratio)
 
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
             var imageObj = new Image();
             imageObj.crossOrigin = "anonymous";
-            imageObj.onload =()=>{
+            imageObj.onload = () => {
                 ctx.drawImage(imageObj, 15, 15, 250, 250 * imageObj.height / imageObj.width);
             }
-            imageObj.src = data.image;
-            
-            ctx.font = '13px "Roboto Mono"';
-            ctx.fillStyle = "#fff";
-            let currentHeight = 277;
-            data.choosenLyr.map((item, index) => {
-                currentHeight = currentHeight + 16
-                ctx.fillText(item, 15, currentHeight, 250)
-            });
-            console.log(currentHeight)
-            ctx.textAlign = "right";
-            ctx.fillText(data.name, 265, currentHeight + 24, 250);
-            ctx.fillText(data.artists, 265, currentHeight + 24 + 17, 250)
+            imageObj.src = "https://cors-anywhere.herokuapp.com/" + data.image;
 
-            // var link = document.getElementById('download');
-            // var canvas = document.getElementById('canvas');
-            // link.setAttribute('download', 'KKK.png');
-            // link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+            //!!!!!!!importent, need write method for canvas line breaker.
+            document.fonts.ready.then(() => {
+                ctx.font = '13px "Roboto Mono"';
+                ctx.fillStyle = "#fff";
+                let currentHeight = 277;
+                data.choosenLyr.map((item, index) => {
+                    currentHeight = currentHeight + 16
+                    ctx.fillText(item, 15, currentHeight, 250)
+                });
+                ctx.textAlign = "right";
+                ctx.fillText(data.name, 265, currentHeight + 24, 250);
+                ctx.fillText(data.artists, 265, currentHeight + 24 + 17, 250)
+            })
+
+            var canvas = document.getElementById('canvas');
+
+            console.log(canvas.width)
 
         }
 
@@ -114,7 +124,7 @@ class LyricsPic extends Component {
             <div className='background' >
                 {card}
                 <canvas id="canvas" className="canvas-poster-hidca" ref={el => { this.canvas = el }} style={{ display: 'block' }}></canvas>
-                <a className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3 mt4">Download Lyrics Pic</a>
+                <a id="download" download='pic.png' onClick={el=>this.download_img(el)} className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3 mt4">Download Lyrics Pic</a>
             </div>
         )
     }
