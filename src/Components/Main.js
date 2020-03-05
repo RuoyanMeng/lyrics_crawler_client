@@ -40,7 +40,6 @@ class Main extends Component {
         if (token) {
             api.current_play(token)
                 .then(resp => {
-                    console.log(resp.data.item)
                     let song_info = null;
                     let artists = [];
                     for (let i = 0; i < resp.data.item.artists.length; i++) {
@@ -258,7 +257,6 @@ class Main extends Component {
                 }
                 else if(item.height === 640){
                     lyricsPicUrl = item.url
-                    console.log(lyricsPicUrl)
                 }
             })
 

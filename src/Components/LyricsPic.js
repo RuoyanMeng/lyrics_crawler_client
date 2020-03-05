@@ -11,28 +11,35 @@ class LyricsPic extends Component {
     }
 
     componentDidMount() {
-        this.setState({
-            dimensions: {
-                width: this.card.offsetWidth,
-                height: this.card.offsetHeight,
-            },
-        });
+        if(this.props.location.data){
+            this.setState({
+                dimensions: {
+                    width: this.card.offsetWidth,
+                    height: this.card.offsetHeight,
+                },
+            });
+        }
     }
 
     download_img = (el) => {
+        let time = new Date().getTime()
         var canvas = document.getElementById('canvas');
-        console.log(canvas.width, canvas.height)
         var image = canvas.toDataURL("image/jpg");
+        el.target.download = this.props.location.data.name + "_"+ time + ".png"
+        //el.target.download = "_"+ time + ".png"
         el.target.href = image;
     };
 
-
+    goBack(e) {
+        e.preventDefault();
+        this.props.history.goBack();
+    }
 
     render() {
         const data = this.props.location.data
         const { dimensions } = this.state;
-        let svg = null
-        let picCanvs = null;
+        let card =null;
+        let downloadBtn = null;
 
         // let data = {
         //     image: "https://i.scdn.co/image/ab67616d0000b273445f0f337a07012336328ea0",
@@ -41,10 +48,9 @@ class LyricsPic extends Component {
         //     choosenLyr: ["I need a gangsta, to love me better", "Than all the others do, That's just what gangsters do", "To always forgive me", "Ride or die with me", "That's just what gangsters do"],
         //     spotifyUrl: "https://open.spotify.com/track/1W7zkKgRv9mrLbfdQ8XyH3"
         // };
-
-        console.log(dimensions);
-
-        let lyrics =
+        
+        if(data){
+            let lyrics =
             <div className='lyrics'>
                 {data.choosenLyr.map((item, index) => {
                     return (
@@ -55,7 +61,7 @@ class LyricsPic extends Component {
                     )
                 })} </div>
 
-        let card =
+        card =
             <div className='card' id='card' xmlns="http://www.w3.org/1999/xhtml" ref={el => { this.card = el }}>
                 <img src={data.image} className="image" />
                 {lyrics}
@@ -63,9 +69,12 @@ class LyricsPic extends Component {
                 <h5 className='song-info'>{data.artists}</h5>
             </div>
 
-        if (dimensions) {
+        downloadBtn = <a id="download"  onClick={el=>this.download_img(el)} className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3 mt4">Download Lyrics Pic</a>
+        }else{
 
-            console.log("ok")
+        }
+        
+        if (dimensions) {
 
             this.canvas.width = dimensions.width*2;
             this.canvas.height = dimensions.height*2;
@@ -83,11 +92,6 @@ class LyricsPic extends Component {
                 return (window.devicePixelRatio || 1) / backingStore;
             };
             var ratio = getPixelRatio(ctx);
-
-            // this.canvas.width = dimensions.width * ratio ;
-            // this.canvas.height = dimensions.height * ratio;
-            // this.canvas.style.width = dimensions.width + "px";
-            // this.canvas.style.height = dimensions.height + "px";
 
             this.canvas.width = dimensions.width * ratio *2;
             this.canvas.height = dimensions.height * ratio *2;
@@ -111,7 +115,7 @@ class LyricsPic extends Component {
             }
             imageObj.src = "https://cors-anywhere.herokuapp.com/" + data.image;
 
-            //!!!!!!!importent, need write method for canvas line breaker.
+            //line breaker.
             document.fonts.ready.then(() => {
                 ctx.font = '26px "Roboto Mono"';
                 ctx.fillStyle = "#fff";
@@ -121,7 +125,6 @@ class LyricsPic extends Component {
                     
 
                     let lyricsWidth = Math.round(ctx.measureText(item).width);
-                    console.log(lyricsWidth,index, item.split(" ").length);
 
                     if (lyricsWidth>=imageSize){
                         let itemWordNum = item.split(" ").length
@@ -137,7 +140,6 @@ class LyricsPic extends Component {
                                 let newline = item.split(" ").slice(0,wordNum).join(" ");
                                 ctx.fillText(newline, padding, currentHeight, imageSize);
                                 item = item.split(" ").slice(wordNum, lyricsWidth).join(" ");
-                                console.log(item)
                                 lyricsWidth = Math.round(ctx.measureText(item).width);
                             }
                         }
@@ -154,9 +156,7 @@ class LyricsPic extends Component {
                 ctx.fillText(data.artists, imageSize+padding , dimensions.height *2 - 30, imageSize)
             })
 
-            var canvas = document.getElementById('canvas');
-
-            console.log(canvas.width)
+            
 
         }
 
@@ -168,8 +168,9 @@ class LyricsPic extends Component {
             <div className='background' >
                 {card}
                 <canvas id="canvas" className="canvas-poster-hidca" ref={el => { this.canvas = el }} style={{ display: 'none' }}></canvas>
+                {downloadBtn}
+                <a className="f6 link dim br3 ba ph3 pv2 mb2 dib white mb4 mh3 mt4" onClick={e => { this.goBack(e) }}> &lt;-- Back</a>
 
-                <a id="download" download='pic.png' onClick={el=>this.download_img(el)} className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3 mt4">Download Lyrics Pic</a>
             </div>
         )
     }
