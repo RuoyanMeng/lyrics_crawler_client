@@ -21,23 +21,26 @@ class LyricsPic extends Component {
 
     download_img = (el) => {
         var canvas = document.getElementById('canvas');
+        console.log(canvas.width, canvas.height)
         var image = canvas.toDataURL("image/jpg");
         el.target.href = image;
     };
 
+
+
     render() {
-        //const data = this.props.location.data
+        const data = this.props.location.data
         const { dimensions } = this.state;
         let svg = null
         let picCanvs = null;
 
-        let data = {
-            image: 'https://i.scdn.co/image/ab67616d00001e02cb4ec52c48a6b071ed2ab6bc',
-            name: "Gangsta",
-            artists: "Kehlani",
-            choosenLyr: ["I need a gangsta", "To love me better", "Than all the others do", "To always forgive me", "Ride or die with me", "That's just what gangsters do"],
-            spotifyUrl: "https://open.spotify.com/track/1W7zkKgRv9mrLbfdQ8XyH3"
-        };
+        // let data = {
+        //     image: "https://i.scdn.co/image/ab67616d0000b273445f0f337a07012336328ea0",
+        //     name: "Gangsta",
+        //     artists: "Kehlani",
+        //     choosenLyr: ["I need a gangsta, to love me better", "Than all the others do, That's just what gangsters do", "To always forgive me", "Ride or die with me", "That's just what gangsters do"],
+        //     spotifyUrl: "https://open.spotify.com/track/1W7zkKgRv9mrLbfdQ8XyH3"
+        // };
 
         console.log(dimensions);
 
@@ -64,10 +67,10 @@ class LyricsPic extends Component {
 
             console.log("ok")
 
-            this.canvas.width = dimensions.width;
-            this.canvas.height = dimensions.height;
-            this.canvas.style.width = dimensions.width + "px";
-            this.canvas.style.height = dimensions.height + "px";
+            this.canvas.width = dimensions.width*2;
+            this.canvas.height = dimensions.height*2;
+            this.canvas.style.width = dimensions.width*2 + "px";
+            this.canvas.style.height = dimensions.height*2 + "px";
             var ctx = this.canvas.getContext('2d')
 
             var getPixelRatio = function (context) {
@@ -80,8 +83,16 @@ class LyricsPic extends Component {
                 return (window.devicePixelRatio || 1) / backingStore;
             };
             var ratio = getPixelRatio(ctx);
-            this.canvas.width = dimensions.width * ratio;
-            this.canvas.height = dimensions.height * ratio;
+
+            // this.canvas.width = dimensions.width * ratio ;
+            // this.canvas.height = dimensions.height * ratio;
+            // this.canvas.style.width = dimensions.width + "px";
+            // this.canvas.style.height = dimensions.height + "px";
+
+            this.canvas.width = dimensions.width * ratio *2;
+            this.canvas.height = dimensions.height * ratio *2;
+            this.canvas.style.width = dimensions.width *2+ "px";
+            this.canvas.style.height = dimensions.height *2+ "px";
 
             var ctx = this.canvas.getContext('2d')
             ctx.scale(ratio, ratio)
@@ -89,25 +100,58 @@ class LyricsPic extends Component {
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+            let padding = 30;
+            let imageSize = 500;
+
+            //load image
             var imageObj = new Image();
             imageObj.crossOrigin = "anonymous";
             imageObj.onload = () => {
-                ctx.drawImage(imageObj, 15, 15, 250, 250 * imageObj.height / imageObj.width);
+                ctx.drawImage(imageObj, padding, padding, imageSize, imageSize * imageObj.height / imageObj.width);
             }
             imageObj.src = "https://cors-anywhere.herokuapp.com/" + data.image;
 
             //!!!!!!!importent, need write method for canvas line breaker.
             document.fonts.ready.then(() => {
-                ctx.font = '13px "Roboto Mono"';
+                ctx.font = '26px "Roboto Mono"';
                 ctx.fillStyle = "#fff";
-                let currentHeight = 277;
+                let currentHeight = imageSize+padding+21;
                 data.choosenLyr.map((item, index) => {
-                    currentHeight = currentHeight + 16
-                    ctx.fillText(item, 15, currentHeight, 250)
+
+                    
+
+                    let lyricsWidth = Math.round(ctx.measureText(item).width);
+                    console.log(lyricsWidth,index, item.split(" ").length);
+
+                    if (lyricsWidth>=imageSize){
+                        let itemWordNum = item.split(" ").length
+                        while (item!==""){
+                            let wordNum = Math.round(imageSize/lyricsWidth*item.split(" ").length);
+                            if(wordNum >= itemWordNum){
+                                currentHeight = currentHeight + 33;
+                                ctx.fillText(item, padding, currentHeight, imageSize);
+                                item = "";
+                                break
+                            }else{
+                                currentHeight = currentHeight + 33;
+                                let newline = item.split(" ").slice(0,wordNum).join(" ");
+                                ctx.fillText(newline, padding, currentHeight, imageSize);
+                                item = item.split(" ").slice(wordNum, lyricsWidth).join(" ");
+                                console.log(item)
+                                lyricsWidth = Math.round(ctx.measureText(item).width);
+                            }
+                        }
+                    }else{
+                        currentHeight = currentHeight + 33;
+                        ctx.fillText(item, padding, currentHeight, imageSize)
+                    }
+
+
                 });
                 ctx.textAlign = "right";
-                ctx.fillText(data.name, 265, currentHeight + 24, 250);
-                ctx.fillText(data.artists, 265, currentHeight + 24 + 17, 250)
+                ctx.font = '23px "Roboto Mono"';
+                ctx.fillText(data.name, imageSize+padding, dimensions.height *2 - 60, imageSize);
+                ctx.fillText(data.artists, imageSize+padding , dimensions.height *2 - 30, imageSize)
             })
 
             var canvas = document.getElementById('canvas');
@@ -123,7 +167,8 @@ class LyricsPic extends Component {
         return (
             <div className='background' >
                 {card}
-                <canvas id="canvas" className="canvas-poster-hidca" ref={el => { this.canvas = el }} style={{ display: 'block' }}></canvas>
+                <canvas id="canvas" className="canvas-poster-hidca" ref={el => { this.canvas = el }} style={{ display: 'none' }}></canvas>
+
                 <a id="download" download='pic.png' onClick={el=>this.download_img(el)} className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3 mt4">Download Lyrics Pic</a>
             </div>
         )

@@ -48,12 +48,13 @@ class Main extends Component {
                     }
                     if (resp.data.item.uri.includes('local')) {
                         let album = {
-                            url: logoSpotify
+                            url: logoSpotify,
+                            height:300
                         }
                         song_info = {
                             name: resp.data.item.name,
                             album_name: null,
-                            album_image: album,
+                            album_image: [album],
                             artists: artists,
                             spotifyUrl: null
                         }
@@ -61,7 +62,7 @@ class Main extends Component {
                         song_info = {
                             name: resp.data.item.name,
                             album_name: resp.data.item.album.name,
-                            album_image: resp.data.item.album.images[1],
+                            album_image: resp.data.item.album.images,
                             artists: artists,
                             spotifyUrl: resp.data.item.external_urls.spotify
                         }
@@ -113,7 +114,7 @@ class Main extends Component {
                                 let song_info = {
                                     name: state.track_window.current_track.name,
                                     album_name: state.track_window.current_track.album.name,
-                                    album_image: state.track_window.current_track.album.images[0],
+                                    album_image: state.track_window.current_track.album.images,
                                     artists: artists
                                 }
                                 this.setState({
@@ -150,19 +151,11 @@ class Main extends Component {
             }
         }
 
-        window.addEventListener('scroll', this.handleScroll);
-
-
-        console.log(this.state.lyricsPicContent)
 
     }
 
     componentWillUnmount() {
-        window.removeEventListener('scroll', this.handleScroll.bind(this));
-    }
 
-    handleScroll = () => {
-        console.log('scroll');
     }
 
     handleLyrics = (song_info) => {
@@ -246,7 +239,7 @@ class Main extends Component {
 
 
     render() {
-        let main = null
+        let main = null;
         let loader = <img className='w3' src={loaderIcon}></img>
 
         let tooltipPosition = /Android|webOS|iPhone|iPad/i.test(navigator.userAgent) ? 'top' : 'bottom';
@@ -255,8 +248,20 @@ class Main extends Component {
 
         if (this.state.currentPlaying) {
 
-            let artists = this.state.currentPlaying.artists
-            let lyrics = null
+            let artists = this.state.currentPlaying.artists;
+            let lyrics = null;
+            let lyricsPicUrl = null;
+            let ablumImageUrl = null;
+            this.state.currentPlaying.album_image.map((item)=>{
+                if(item.height === 300){
+                    ablumImageUrl = item.url
+                }
+                else if(item.height === 640){
+                    lyricsPicUrl = item.url
+                    console.log(lyricsPicUrl)
+                }
+            })
+
 
             if (this.state.lyrics_current) {
                 if (this.state.lyrics_current === 'Oops! No results found') {
@@ -274,7 +279,7 @@ class Main extends Component {
                         </div>
                 } else {
                     let lyricsPicData = {
-                        image: this.state.currentPlaying.album_image.url,
+                        image: lyricsPicUrl,
                         name:this.state.currentPlaying.name,
                         artists: artists.join(', '),
                         choosenLyr: this.state.lyricsPicContent,
@@ -321,7 +326,7 @@ class Main extends Component {
                     <div className='main'>
                         <div className=" pa3  ">
                             <div className="pt6">
-                                <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
+                                <img src={ablumImageUrl} className="mw-100" />
                                 <h1 className=' f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
                                 <h1 className=' f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
                             </div>
@@ -346,7 +351,7 @@ class Main extends Component {
                                 <h1 className=' f5 center fw5 mt3 white'>2. Click Connect to a device in the bottom-right.</h1>
                                 <h1 className=' f5 center fw5 mt3 white pb4'>3. Select the device "hello".</h1>
 
-                                <img src={this.state.currentPlaying.album_image.url} className="mw-100" />
+                                <img src={ablumImageUrl} className="mw-100" />
                                 <h1 className=' avenir f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
                                 <h1 className=' avenir f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
                             </div>
