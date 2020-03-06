@@ -299,7 +299,9 @@ class Main extends Component {
                         <div>
                             <div>
                                 {this.state.lyrics_current.split("\n").map((item, index) => {
-
+                                    if(index === 1){
+                                        item = "----> Select lyrics here <----"
+                                    }
                                     return (
                                         //have parenthesis to avoid undefined error
                                         //must set key or id to aviod undefined error
@@ -357,8 +359,7 @@ class Main extends Component {
                             <div className="pa1 h4">
                                 {lyrics}
                             </div>
-                            <label className='share-menu' onClick={this.openModal}><img className='icon' src={shareIcon} /></label>
-
+                            <label className='share-menu' onClick={this.openModal}><Tooltip className="share-menu" message={'Click here to sharing lyrics'} position={"left"}><img className='icon' src={shareIcon} /></Tooltip></label>
                         </div>
                     </div>
             }

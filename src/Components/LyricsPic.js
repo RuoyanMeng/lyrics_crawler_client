@@ -37,7 +37,9 @@ class LyricsPic extends Component {
 
     render() {
         const data = this.props.location.data
+        
         const { dimensions } = this.state;
+        console.log(dimensions)
         let card =null;
         let downloadBtn = null;
 
