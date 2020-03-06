@@ -22,12 +22,22 @@ class LyricsPic extends Component {
     }
 
     download_img = (el) => {
+        // let time = new Date().getTime()
+        // var canvas = document.getElementById('canvas');
+        // var image = canvas.toDataURL("image/jpg");
+        // el.target.download = this.props.location.data.name + "_"+ time + ".png"
+        // //el.target.download = "_"+ time + ".png"
+        // el.target.href = image;
+        console.log("start download")
         let time = new Date().getTime()
         var canvas = document.getElementById('canvas');
         var image = canvas.toDataURL("image/jpg");
-        el.target.download = this.props.location.data.name + "_"+ time + ".png"
+        var strDataURI = image.substr(22, image.length);
+        var blob = this.dataURLtoBlob(image);
+        var objurl = URL.createObjectURL(blob);
+        el.target.download = this.props.location.data.name + "_" + time + ".png"
         //el.target.download = "_"+ time + ".png"
-        el.target.href = image;
+        el.target.href = objurl;
     };
 
     goBack(e) {
@@ -114,6 +124,7 @@ class LyricsPic extends Component {
             imageObj.crossOrigin = "anonymous";
             imageObj.onload = () => {
                 ctx.drawImage(imageObj, padding, padding, imageSize, imageSize * imageObj.height / imageObj.width);
+                console.log("ok")
             }
             imageObj.src = "https://cors-anywhere.herokuapp.com/" + data.image;
 
