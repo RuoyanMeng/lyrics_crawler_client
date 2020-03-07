@@ -22,13 +22,6 @@ class LyricsPic extends Component {
     }
 
     download_img = (el) => {
-        // let time = new Date().getTime()
-        // var canvas = document.getElementById('canvas');
-        // var image = canvas.toDataURL("image/jpg");
-        // el.target.download = this.props.location.data.name + "_"+ time + ".png"
-        // //el.target.download = "_"+ time + ".png"
-        // el.target.href = image;
-        console.log("start download")
         let time = new Date().getTime()
         var canvas = document.getElementById('canvas');
         var image = canvas.toDataURL("image/jpg");
@@ -36,9 +29,18 @@ class LyricsPic extends Component {
         var blob = this.dataURLtoBlob(image);
         var objurl = URL.createObjectURL(blob);
         el.target.download = this.props.location.data.name + "_" + time + ".png"
-        //el.target.download = "_"+ time + ".png"
         el.target.href = objurl;
     };
+
+    
+    dataURLtoBlob= (dataurl)=> {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
 
     goBack(e) {
         e.preventDefault();
@@ -47,9 +49,8 @@ class LyricsPic extends Component {
 
     render() {
         const data = this.props.location.data
-        
         const { dimensions } = this.state;
-        console.log(dimensions)
+
         let card =null;
         let downloadBtn = null;
 
@@ -124,7 +125,6 @@ class LyricsPic extends Component {
             imageObj.crossOrigin = "anonymous";
             imageObj.onload = () => {
                 ctx.drawImage(imageObj, padding, padding, imageSize, imageSize * imageObj.height / imageObj.width);
-                console.log("ok")
             }
             imageObj.src = "https://cors-anywhere.herokuapp.com/" + data.image;
 
