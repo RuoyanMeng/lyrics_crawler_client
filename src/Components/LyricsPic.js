@@ -126,7 +126,7 @@ class LyricsPic extends Component {
             imageObj.onload = () => {
                 ctx.drawImage(imageObj, padding, padding, imageSize, imageSize * imageObj.height / imageObj.width);
             }
-            imageObj.src = "https://cors-anywhere.herokuapp.com/" + data.image;
+            imageObj.src =  data.image;
 
             //line breaker.
             document.fonts.ready.then(() => {

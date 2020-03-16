@@ -159,8 +159,10 @@ class Main extends Component {
 
     handleLyrics = (song_info) => {
         let name = song_info.name.split(' (')[0]
+        name = song_info.name.split(' -')[0]
         let artist = song_info.artists[0]
-        api.getLyrics(name, artist)
+        let album = song_info.album_name
+        api.getLyrics(name, artist, album)
             .then(resp => {
                 this.setState({
                     lyrics_current: resp.data

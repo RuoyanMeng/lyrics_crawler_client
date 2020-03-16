@@ -22,13 +22,14 @@ class Api {
       });
   }
 
-  static getLyrics = (_song, _artist) => {
+  static getLyrics = (_song, _artist, _album) => {
     let u = window.location.href
     let _url = u.includes('localhost') ? 'http://localhost:5000/fetch_lyrics' : 'https://lyrics-crawler-server.herokuapp.com/fetch_lyrics'
     return axios.get(_url, {
       params: {
         song: _song,
-        artist: _artist
+        artist: _artist,
+        album: _album
       }
     }
 

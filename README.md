@@ -1,7 +1,14 @@
 # Lyrivs Crawler
 
+## To do
+* Add multi styles for lyrics sharing card
+* Keep increasing matching accuracy
+* Support translate between Simplified Chinese and Traditional Chinese.
+
 ## Updates
 
+* 2020.03.16. Support Chinese song lyrics fetching, add lyrics source.
+* 2020.03.05. Add lyrics cards sharing.
 * 2020.02.26. Fixed the issue that when browsing with a mobile device tooltip will be covered. 
 * 2020.02.20. Add feedback for the song lacking lyrics. 
 
@@ -29,3 +36,4 @@ To start a local version, download and run:
 * Spotify Web API
 * Spotify Web Playback SDK
 * Genius API
+* KKBOX API
