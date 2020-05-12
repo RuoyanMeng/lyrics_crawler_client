@@ -1,4 +1,3 @@
-  
 {
   "name": "lyrics_crawler",
   "version": "0.1.0",
@@ -8,12 +7,15 @@
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.1",
+    "css-loader": "^3.5.3",
     "node-sass": "^4.13.1",
     "react": "^16.12.0",
+    "react-cropper": "^1.3.0",
     "react-dom": "^16.12.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
-    "serve": "^11.3.0"
+    "serve": "^11.3.0",
+    "style-loader": "^1.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
