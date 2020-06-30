@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import '../../Styles/main.scss'
 
 
@@ -8,7 +7,8 @@ class Player extends Component {
         super(props);
 
         this.state = {
-            togglePlay: 0
+            togglePlay: 0,
+            currentTime: 0
         }
 
     }
@@ -24,23 +24,91 @@ class Player extends Component {
                 togglePlay: 0
             })
         }
-        console.log('clicked')
-        this.props.player.togglePlay().then(() => {
-            console.log('Toggled playback!');
-        });
+        this.props.player.togglePlay()
     }
 
     previousTrack = () => {
-        this.props.player.previousTrack().then(() => {
-            console.log('Set to previous track!');
-        });
+        this.props.player.previousTrack()
     }
 
     nextTrack = () => {
-        this.props.player.nextTrack().then(() => {
-            console.log('Skipped to next track!');
-        });
+        this.props.player.nextTrack()
     }
+
+    getPosition = () => {
+        this.props.player.getCurrentState().then(state => {
+            if (!state) {
+                console.error('User is not playing music through the Web Playback SDK');
+                return;
+            }
+            let position = Math.round((state.position / state.duration) * 1000);
+
+            this.setState({
+                currentTime: position,
+                audioDuration: state.duration
+            })
+
+        })
+    }
+    handleMouseDown = () => {
+        clearInterval(this.nIntervId);
+        this.props.player.pause()
+    }
+
+    handleChange = (e) => {
+
+        let value = e.currentTarget.value;
+        this.setState({
+            currentTime: value,
+        })
+
+    }
+
+    handleMouseUp = () => {
+
+        let debounceFn = this.debounce(this.seekPosition, 1000)
+        debounceFn(this.state.currentTime);
+
+    }
+
+    seekPosition = (value) => {
+
+        this.props.player.seek(Math.round(value * this.state.audioDuration / 1000)).then(() => {
+            this.props.player.resume().then(() => {
+                this.nIntervId = setInterval(() => this.getPosition(), 400)
+            });
+        });
+
+    }
+
+    debounce = (fn, delay) => {
+        let timer;
+        return function () {
+            var _this = this;
+            var args = arguments;
+            if (timer) {
+                clearTimeout(timer);
+            }
+            timer = setTimeout(function () {
+                clearTimeout(timer);
+                timer = null;
+                fn.apply(_this, args);
+            }, delay);
+        };
+    }
+
+
+
+    componentDidMount() {
+
+        this.nIntervId = setInterval(() => this.getPosition(), 400)
+
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.nIntervId);
+    }
+
 
 
 
@@ -50,6 +118,7 @@ class Player extends Component {
 
         let previousBtn =
             <svg
+                onClick={this.previousTrack}
                 className="icon controlBtn"
                 xmlns="http://www.w3.org/2000/svg"
                 xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -62,6 +131,7 @@ class Player extends Component {
 
         let onBtn =
             <svg
+                onClick={this.togglePlay}
                 className='w2 icon'
                 xmlns="http://www.w3.org/2000/svg"
                 xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -75,6 +145,7 @@ class Player extends Component {
 
         let pauseBtn =
             <svg className='icon w2'
+                onClick={this.togglePlay}
                 xmlns="http://www.w3.org/2000/svg"
                 xmlnsXlink="http://www.w3.org/1999/xlink"
                 xmlSpace="preserve"
@@ -87,6 +158,7 @@ class Player extends Component {
 
         let nextBtn =
             <svg
+                onClick={this.nextTrack}
                 className='icon controlBtn'
                 xmlns="http://www.w3.org/2000/svg"
                 xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -106,21 +178,40 @@ class Player extends Component {
             togglePlayBtn = pauseBtn
         }
 
+        //progress-bar
+
+
+
+
+
 
 
         return (
-            <div className="flex justify-around">
-                <div className=" w-25 pv5 " onClick={this.previousTrack}>
-                    {previousBtn}
+            <div className='player'>
+                <div className="flex justify-around footer">
+                    <div className="w-25 pa4  " >
+                        {previousBtn}
+                    </div>
+                    <div className="w-25 pa4 " >
+                        {togglePlayBtn}
+                    </div>
+                    <div className="w-25 pa4 " >
+                        {nextBtn}
+                    </div>
                 </div>
-                <div className="w-25 pv5" onClick={this.togglePlay}>
-                    {togglePlayBtn}
+                <div className="progress-bar flex justify-around">
+                    <input type="range" min="0" max="1000" 
+                    value={this.state.currentTime} 
+                    onTouchEnd = {this.handleMouseUp}
+                    onTouchStart = {this.handleMouseDown} 
+                    onMouseUp={this.handleMouseUp} 
+                    onMouseDown={this.handleMouseDown} 
+                    onInput={this.handleChange} 
+                    step="any" ></input>
                 </div>
-                <div className=" w-25 pv5" onClick={this.nextTrack}>
-                    {nextBtn}
-                </div>
-
             </div>
+
+
         )
 
     }

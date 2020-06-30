@@ -48,7 +48,7 @@ class Main extends Component {
                     if (resp.data.item.uri.includes('local')) {
                         let album = {
                             url: logoSpotify,
-                            height:300
+                            height: 300
                         }
                         song_info = {
                             name: resp.data.item.name,
@@ -95,7 +95,7 @@ class Main extends Component {
                             getOAuthToken: callback => {
                                 callback(token);
                             },
-                            volume: 0.2
+                            volume: 0.1
                         });
 
                         player.addListener('initialization_error', ({ message }) => { console.error(message); });
@@ -104,24 +104,33 @@ class Main extends Component {
                         player.addListener('playback_error', ({ message }) => { console.error(message); });
 
                         // Playback status updates
-                        player.addListener('player_state_changed', state => {
-                            if (state) {
+                        player.addListener('player_state_changed',({ position, duration, track_window })=> {
+                            if (track_window) {
+
                                 let artists = [];
-                                for (let i = 0; i < state.track_window.current_track.artists.length; i++) {
-                                    artists[i] = state.track_window.current_track.artists[i].name
+                                for (let i = 0; i < track_window.current_track.artists.length; i++) {
+                                    artists[i] = track_window.current_track.artists[i].name
                                 }
                                 let song_info = {
-                                    name: state.track_window.current_track.name,
-                                    album_name: state.track_window.current_track.album.name,
-                                    album_image: state.track_window.current_track.album.images,
+                                    name: track_window.current_track.name,
+                                    album_name: track_window.current_track.album.name,
+                                    album_image: track_window.current_track.album.images,
                                     artists: artists
                                 }
-                                this.setState({
-                                    lyrics_current: null,
-                                    player: player,
-                                    currentPlaying: song_info
-                                });
-                                this.handleLyrics(song_info)
+                                if (song_info.name == this.state.currentPlaying.name) {
+                                    this.setState({
+                                        player: player,
+                                        currentPlaying: song_info
+                                    });
+                                } else {
+                                    this.setState({
+                                        lyrics_current: null,
+                                        player: player,
+                                        currentPlaying: song_info
+                                    });
+                                    this.handleLyrics(song_info)
+                                }
+
                             } else {
                                 this.setState({
                                     player: null
@@ -253,11 +262,11 @@ class Main extends Component {
             let lyrics = null;
             let lyricsPicUrl = null;
             let ablumImageUrl = null;
-            this.state.currentPlaying.album_image.map((item)=>{
-                if(item.height === 300){
+            this.state.currentPlaying.album_image.map((item) => {
+                if (item.height === 300) {
                     ablumImageUrl = item.url
                 }
-                else if(item.height === 640){
+                else if (item.height === 640) {
                     lyricsPicUrl = item.url
                 }
             })
@@ -280,13 +289,13 @@ class Main extends Component {
                 } else {
                     let lyricsPicData = {
                         image: lyricsPicUrl,
-                        name:this.state.currentPlaying.name,
+                        name: this.state.currentPlaying.name,
                         artists: artists.join(', '),
                         choosenLyr: this.state.lyricsPicContent,
                         spotifyUrl: this.state.currentPlaying.spotifyUrl
                     }
                     lyrics =
-                        <div className='white pv3'>
+                        <div className='white pv3' style={{marginBottom:100}}>
                             {this.state.lyrics_current.split("\n").map((item, index) => {
                                 return (
                                     <span key={index}>
@@ -301,14 +310,14 @@ class Main extends Component {
                         <div>
                             <div>
                                 {this.state.lyrics_current.split("\n").map((item, index) => {
-                                    if(index === 1){
+                                    if (index === 1) {
                                         item = "----> Select lyrics here <----"
                                     }
                                     return (
                                         //have parenthesis to avoid undefined error
                                         //must set key or id to aviod undefined error
                                         <Selector key={index} lyrics={item} choosenLyrics={this.choosenLyrics} />
-                                        )
+                                    )
                                 })}
                             </div>
                             <Link to={{ pathname: '/lyrics-pic', data: lyricsPicData }}><a className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib white mb4 mh3" >Generate Lyrics Pic</a></Link>
@@ -326,20 +335,21 @@ class Main extends Component {
             if (this.state.player) {
                 main =
                     <div className='main'>
-                        <div className=" pa3  ">
+                        <div className=" pa3 ">
                             <div className="pt6">
                                 <img src={ablumImageUrl} className="mw-100" />
                                 <h1 className=' f5 center fw3 mt3 white'>{this.state.currentPlaying.name}</h1>
                                 <h1 className=' f5 center fw3 mt3 white'>{artists.join(', ')}</h1>
                             </div>
                             <hr className='br1' style={{ backgroundColor: '#1db954', height: '3px', width: '100%', border: '0' }}></hr>
-                            <Player player={this.state.player}></Player>
-                        </div>
-                        <div className="h4">
-                            {lyrics}
-                        </div>
-                        <label className='share-menu' onClick={this.openModal}><img className='icon' src={shareIcon} /></label>
 
+                            <div className="h4">
+                                {lyrics}
+                            </div>
+                        </div>
+
+                        <label className='share-menu' onClick={this.openModal}><img className='icon' src={shareIcon} /></label>
+                        <Player player={this.state.player}></Player>
                     </div>
 
             }
